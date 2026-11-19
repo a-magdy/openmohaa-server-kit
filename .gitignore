@@ -1,0 +1,29 @@
+# Your settings and secrets
+.env
+rcon/.env
+
+# Game data you own: never commit it
+game/
+*.pk3
+
+# Your custom config
+custom/custom.cfg
+
+# Local state
+data/
+tmp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.venv/

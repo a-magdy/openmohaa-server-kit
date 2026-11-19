@@ -1,0 +1,54 @@
+name: Guard
+
+# Keeps secrets, game data and binaries out of the repository.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  no-game-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Fail on archives, binaries, game data or large files
+        run: |
+          set -euo pipefail
+          status=0
+          while IFS= read -r -d '' file; do
+            case "${file,,}" in
+              *.pk3 | *.zip | *.so | *.so.* | *.exe | *.dll | *.dylib | *.tgz | *.tar.gz | *.7z | *.rar | *.bin)
+                echo "::error file=$file::Archives, binaries and game data must not be committed"
+                status=1
+                continue
+                ;;
+              .env | */.env)
+                echo "::error file=$file::.env files hold secrets and must not be committed"
+                status=1
+                continue
+                ;;
+            esac
+            size=$(stat -c %s -- "$file")
+            if [ "$size" -gt 1048576 ]; then
+              echo "::error file=$file::File is larger than 1 MB ($size bytes)"
+              status=1
+            fi
+          done < <(git ls-files -z)
+          exit "$status"

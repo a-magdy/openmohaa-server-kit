@@ -1,0 +1,40 @@
+# OpenMoHAA dedicated server.
+#   cp .env.example .env    # then edit it
+#   docker compose up -d
+#
+# Uses the published image; `docker compose build` builds it from
+# docker/Dockerfile instead.
+services:
+  openmohaa:
+    image: ghcr.io/a-magdy/openmohaa-server-kit:${KIT_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      # Same port inside and outside: the server advertises net_port to the
+      # master list, so a remapped port would be listed wrong.
+      - "${GAME_PORT:-12203}:${GAME_PORT:-12203}/udp"
+      - "${GAMESPY_PORT:-12300}:${GAMESPY_PORT:-12300}/udp"
+    volumes:
+      - ${GAME_DIR:-./game}:/game:ro
+      - ./custom:/custom:ro
+      - data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: ${MEM_LIMIT:-1g}
+    cpus: ${CPU_LIMIT:-2}
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  data:

@@ -1,0 +1,27 @@
+// Your own server settings. Copy to custom/custom.cfg and edit:
+//   cp custom/custom.cfg.example custom/custom.cfg
+// It runs after the base config and the .env settings, and before the map
+// rotation and start map, so anything here overrides both. Do not put
+// `map` or `sv_maplist` here: use MAP_ROTATION and START_MAP in .env.
+// Restart the container to apply: docker compose restart
+
+// Reserved slots for players who know the private password
+// set sv_privateclients 2
+// set sv_privatePassword "pick-a-password"
+
+// Faster movement
+// set sv_dmspeedmult 1.1
+
+// Drop health packs on death
+// set g_healthdrop 1
+
+// Kick idle players after 10 minutes
+// set g_inactivekick 600
+
+// Weapon and gameplay flags (see config/base/server_opm.cfg for the list)
+// bitset dmflags 14   // infinite ammo
+// bitset dmflags 26   // no rocket launchers
+
+// Shortcuts you can run over RCON with vstr, e.g. `rcon vstr norockets`
+// set norockets "bitset dmflags 26"
+// set rockets "bitset dmflags 26 0"
