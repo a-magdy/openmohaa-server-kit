@@ -84,14 +84,14 @@
     <div class="hero-subtitle reveal-fade">Server Kit</div>
 
     <div class="hero-meta reveal-fade">
-      <span class="hero-badge">OpenMohaa v0.82.1</span>
+      <span class="hero-badge">OpenMoHAA v0.82.1</span>
       <span class="hero-year">2026</span>
     </div>
 
     <p class="hero-desc reveal-fade">
       Relive the classic World War II shooter with full modern compatibility
       and active multiplayer servers —
-      powered by the <em>OpenMohaa</em> open-source engine revival.
+      powered by the <em>OpenMoHAA</em> open-source engine revival.
     </p>
 
     <div class="hero-actions reveal-fade">
@@ -200,8 +200,8 @@
 
       <h2 class="chapter-heading reveal-up">Choose Your Mission</h2>
       <p class="chapter-intro reveal-up">
-        Chapter III (Install) gets you the game files everyone needs. After that,
-        pick the path that matches your objective.
+        Steps 1 and 2 of Chapter III (Install) get you the game files everyone needs;
+        steps 3 and 4 are only for playing. After that, pick the path that matches your objective.
       </p>
 
       <div class="path-grid">
@@ -257,7 +257,7 @@
 
       <h2 class="chapter-heading reveal-up">Getting the Game &amp; Engine</h2>
       <p class="chapter-intro reveal-up">
-        Two prerequisites: the original game files (GOG) and the OpenMohaa engine release.
+        Two prerequisites: the original game files (GOG) and, to play, the OpenMoHAA engine release. The Docker server only needs the game files; it downloads its own copy of OpenMoHAA.
       </p>
 
       <!-- NOTE box -->
@@ -282,13 +282,12 @@
           <p>Create an account on <a href="https://www.gog.com" target="_blank" rel="noopener">GOG.com</a> and
           purchase <strong>Medal of Honor: Allied Assault War Chest</strong>.</p>
           <p>Navigate to Account → Games and scroll to <em>Download offline backup game installers</em>.
-          Download all three files:</p>
+          Download the installer <code>.exe</code> and all of its <code>.bin</code> parts into one folder:</p>
           <ul class="editorial-list">
-            <li><code>setup_medal_of_honor_2.0.0.21.exe</code></li>
-            <li><code>setup_medal_of_honor_2.0.0.21-1.bin</code></li>
-            <li><code>setup_medal_of_honor_2.0.0.21-2.bin</code></li>
+            <li><code>setup_medal_of_honor_&lt;version&gt;.exe</code></li>
+            <li><code>setup_medal_of_honor_&lt;version&gt;-1.bin</code>, <code>-2.bin</code>, …</li>
           </ul>
-          <p class="prose-note">Filenames shown are examples and may differ for your GOG account version.</p>
+          <p class="prose-note">The exact names depend on the installer version GOG gives you; the commands below match any of them.</p>
         </div>
       </div>
 
@@ -304,12 +303,12 @@
               <button class="ptab-btn" data-platform="extract-linux" role="tab" aria-selected="false">Linux</button>
             </div>
             <div class="ptab-pane active" id="extract-win" role="tabpanel">
-              <p>Run the <code>.exe</code> installer to extract game files into a folder (e.g. <code>~/games/mohaa</code>).</p>
+              <p>Run the <code>.exe</code> installer and install the game into a folder (e.g. <code>C:\Games\mohaa</code>).</p>
             </div>
             <div class="ptab-pane" id="extract-mac" role="tabpanel">
               <p>Install <strong>innoextract</strong> and run:</p>
               <pre><code>brew install innoextract
-innoextract setup_medal_of_honor_2.0.0.21.exe</code></pre>
+innoextract --gog setup_medal_of_honor_*.exe</code></pre>
               <p>Or use Docker (nothing to install on the host):</p>
               <pre><code>docker run --rm -v "$PWD":/data -w /data debian:stable-slim \
   bash -c "apt-get update -qq &amp;&amp; apt-get install -y -qq innoextract \
@@ -329,12 +328,12 @@ innoextract setup_medal_of_honor_2.0.0.21.exe</code></pre>
         </div>
       </div>
 
-      <!-- Step 3 — Download OpenMohaa -->
+      <!-- Step 3 — Download OpenMoHAA -->
       <div class="editorial-step reveal-up">
         <div class="editorial-step-num">3</div>
         <div class="editorial-step-body">
-          <div class="editorial-step-title">Download OpenMohaa</div>
-          <p>Visit the <a href="https://github.com/openmoh/openmohaa/releases" target="_blank" rel="noopener">OpenMohaa releases page</a>
+          <div class="editorial-step-title">Download OpenMoHAA</div>
+          <p>Visit the <a href="https://github.com/openmoh/openmohaa/releases" target="_blank" rel="noopener">OpenMoHAA releases page</a>
           and download the latest release (<strong>v0.82.1</strong> or newer) for your platform:</p>
 
           <div class="download-grid">
@@ -342,7 +341,7 @@ innoextract setup_medal_of_honor_2.0.0.21.exe</code></pre>
               <span class="download-platform">Windows x64</span>
               <span class="download-file">openmohaa-v0.82.1-windows-x64.zip</span>
             </a>
-            <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-macos-multiarch.arm64-x86_64.zip" target="_blank" rel="noopener">
+            <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-macos-multiarch-arm64-x86_64.zip" target="_blank" rel="noopener">
               <span class="download-platform">macOS Universal</span>
               <span class="download-file">openmohaa-v0.82.1-macos-multiarch…zip</span>
             </a>
@@ -353,6 +352,10 @@ innoextract setup_medal_of_honor_2.0.0.21.exe</code></pre>
             <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-linux-amd64.zip" target="_blank" rel="noopener">
               <span class="download-platform">Linux x64</span>
               <span class="download-file">openmohaa-v0.82.1-linux-amd64.zip</span>
+            </a>
+            <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-linux-arm64.zip" target="_blank" rel="noopener">
+              <span class="download-platform">Linux ARM64</span>
+              <span class="download-file">openmohaa-v0.82.1-linux-arm64.zip</span>
             </a>
           </div>
           <p>Extract the zip directly into your <code>mohaa</code> game directory.</p>
@@ -457,7 +460,7 @@ chmod +x launch_openmohaa_* omohaaded openmohaa</code></pre>
 
       <h2 class="chapter-heading reveal-up">Configuration &amp; Customisation</h2>
       <p class="chapter-intro reveal-up">
-        Tweak graphics, controls, and gameplay settings. The
+        Tweak graphics and controls. The
         <span class="redact-wrap"><span class="redact-bar"></span><span class="redact-text">CONFIG</span></span>
         directory is platform-specific.
       </p>
@@ -494,13 +497,12 @@ chmod +x launch_openmohaa_* omohaaded openmohaa</code></pre>
         <div class="editorial-step-num">6</div>
         <div class="editorial-step-body">
           <div class="editorial-step-title">Customise Your Experience</div>
-          <p>Back up <code>omconfig.cfg</code>, then edit it to adjust graphics, controls, and gameplay:</p>
+          <p>Back up <code>omconfig.cfg</code>, then edit it to adjust graphics and controls:</p>
           <ul class="editorial-list">
             <li><strong>Graphics</strong> — resolution, fullscreen, aspect ratio, GPU settings</li>
             <li><strong>Controls</strong> — key bindings, mouse sensitivity</li>
-            <li><strong>Gameplay</strong> — friendly fire, fall damage, lean movement</li>
           </ul>
-          <p>Server paths are different; see <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/config-paths.md" target="_blank" rel="noopener">docs/faq/config-paths.md</a>.</p>
+          <p>Gameplay rules such as friendly fire and fall damage are set by the server you join. Server paths are different; see <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/config-paths.md" target="_blank" rel="noopener">docs/faq/config-paths.md</a>.</p>
         </div>
       </div>
 
@@ -577,8 +579,8 @@ cp .env.example .env        # set SERVER_HOSTNAME, RCON_PASSWORD, maps...</code>
         <div class="editorial-step-num">2</div>
         <div class="editorial-step-body">
           <div class="editorial-step-title">Prepare Your Game Files</div>
-          <p>Copies <code>pak*.pk3</code> from your own copy into <code>./game/main</code> (and <code>mainta/</code>, <code>maintt/</code>):</p>
-          <pre><code>./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_allied_assault_war_chest.exe
+          <p>Copies <code>pak*.pk3</code> from your own copy into <code>./game/main</code> (and <code>mainta/</code>, <code>maintt/</code> for the expansions). Keep the installer's <code>.bin</code> parts next to the <code>.exe</code>:</p>
+          <pre><code>./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_*.exe
 #   or: --source "/path/to/installed/Medal of Honor Allied Assault"</code></pre>
         </div>
       </div>
@@ -616,7 +618,7 @@ python3 rcon/rcon-status.py 127.0.0.1</code></pre>
       <h2 class="chapter-heading reveal-up">Hosting a Dedicated Server</h2>
       <p class="chapter-intro reveal-up">
         Works on any Linux VPS or home server with Docker: Hetzner, DigitalOcean, OVH,
-        a Raspberry Pi 4/5, and so on. Up to ~30 players and bots run comfortably on
+        a Raspberry Pi 4/5 with a 64-bit OS, and so on. Up to ~30 players and bots run comfortably on
         1 vCPU and 1 GB RAM. Pick a region close to your players; ping matters more than CPU.
         Full guide: <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/hosting/vps.md" target="_blank" rel="noopener">hosting/vps.md</a>.
       </p>
@@ -648,7 +650,7 @@ nano .env   # hostname, RCON password, game type, maps</code></pre>
           <div class="editorial-step-title">Upload Your Game Files</div>
           <p>Prepare them on your own computer, then copy them up over SSH:</p>
           <pre><code># on your computer, in your local clone
-./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_allied_assault_war_chest.exe
+./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_*.exe
 ./scripts/upload-game-files.sh user@your-server</code></pre>
         </div>
       </div>
@@ -671,7 +673,7 @@ python3 rcon/rcon-status.py &lt;server-ip&gt;</code></pre>
               <pre><code>git pull
 docker compose pull     # or: docker compose build
 docker compose up -d</code></pre>
-              <p>Pin <code>KIT_VERSION</code> in <code>.env</code> to a release (for example <code>0.1.0</code>) to update only when you choose.</p>
+              <p>Pin <code>KIT_VERSION</code> in <code>.env</code> to a <a href="https://github.com/a-magdy/openmohaa-server-kit/releases" target="_blank" rel="noopener">release</a> (for example <code>0.1.0</code>) to update only when you choose.</p>
             </div>
           </div>
         </div>
@@ -685,7 +687,7 @@ docker compose up -d</code></pre>
         </div>
         <div class="cloud-option">
           <div class="cloud-option-key">RCON_PASSWORD</div>
-          <div class="cloud-option-val">At least 8 characters, no spaces. Empty turns RCON off.</div>
+          <div class="cloud-option-val">At least 8 characters, no spaces, not <code>changeme</code>. Empty turns RCON off.</div>
         </div>
         <div class="cloud-option">
           <div class="cloud-option-key">GAME_TYPE</div>
@@ -884,7 +886,7 @@ docker compose up -d</code></pre>
             <span class="faq-toggle" aria-hidden="true">▸</span>
           </button>
           <div class="faq-answer">
-            <p><strong>Server (this kit):</strong> put the <code>.pk3</code> in <code>custom/</code> and run <code>docker compose restart</code>.</p>
+            <p><strong>Server (this kit):</strong> put the <code>.pk3</code> in <code>custom/</code>, add its map name to <code>MAP_ROTATION</code> in <code>.env</code>, and run <code>docker compose up -d</code>.</p>
             <p><strong>Client:</strong> put it in the <code>main</code> subdirectory of your OpenMoHAA config folder.</p>
             <p>If the paths inside the <code>.pk3</code> start with <code>main/</code>, it was packed one level too deep; see <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/custom/README.md" target="_blank" rel="noopener">custom/README.md</a>.</p>
           </div>
@@ -918,7 +920,7 @@ chmod +x launch_openmohaa_* omohaaded openmohaa</code></pre>
             <span class="faq-toggle" aria-hidden="true">▸</span>
           </button>
           <div class="faq-answer">
-            <p>Set <code>MAX_BOTS</code> and either <code>BOT_COUNT</code> (fixed number) or <code>BOT_FILL_MIN_PLAYERS</code> (fill up to that many players) in <code>.env</code>. <code>MAX_CLIENTS</code> + <code>MAX_BOTS</code> must be 64 or less. With RCON on you can also run <code>rcon addbot</code> or <code>rcon exec bots.cfg</code>.</p>
+            <p>Set <code>MAX_BOTS</code> and either <code>BOT_COUNT</code> (fixed number) or <code>BOT_FILL_MIN_PLAYERS</code> (fill up to that many players) in <code>.env</code>. <code>MAX_CLIENTS</code> + <code>MAX_BOTS</code> must be 64 or less. With RCON on you can also run <code>rcon addbot 5</code> or <code>rcon exec bots.cfg</code> from the in-game console.</p>
           </div>
         </div>
 
@@ -928,7 +930,7 @@ chmod +x launch_openmohaa_* omohaaded openmohaa</code></pre>
             <span class="faq-toggle" aria-hidden="true">▸</span>
           </button>
           <div class="faq-answer">
-            <p>Run <code>docker compose logs</code>. The kit checks your settings and game files before starting and says what's wrong, for example a missing <code>pak0.pk3</code> or an <code>RCON_PASSWORD</code> that is too short.</p>
+            <p>Run <code>docker compose logs openmohaa</code>. The kit checks your settings and game files before starting and says what's wrong, for example a missing <code>pak0.pk3</code> or an <code>RCON_PASSWORD</code> that is too short.</p>
           </div>
         </div>
 
@@ -938,9 +940,10 @@ chmod +x launch_openmohaa_* omohaaded openmohaa</code></pre>
             <span class="faq-toggle" aria-hidden="true">▸</span>
           </button>
           <div class="faq-answer">
-            <pre><code>sudo ss -ulnp | grep :12203
+            <pre><code>docker compose ps                         # healthy?
+sudo ss -ulnp | grep -E ':(12203|12300)'
 python3 rcon/rcon-status.py &lt;server-ip&gt;
-nmap -sU -p 12203 &lt;server-ip&gt;</code></pre>
+nmap -sU -p 12203,12300 &lt;server-ip&gt;</code></pre>
             <p>Check that both UDP ports are open in your provider's firewall. See <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/troubleshooting.md" target="_blank" rel="noopener">docs/faq/troubleshooting.md</a>.</p>
           </div>
         </div>
@@ -1057,11 +1060,11 @@ nmap -sU -p 12203 &lt;server-ip&gt;</code></pre>
           <span class="colophon-sep" aria-hidden="true">·</span>
           <a href="https://github.com/a-magdy" target="_blank" rel="noopener">a-magdy</a>
           <span class="colophon-sep" aria-hidden="true">·</span>
-          <a href="https://github.com/openmoh/openmohaa" target="_blank" rel="noopener">OpenMohaa</a>
+          <a href="https://github.com/openmoh/openmohaa" target="_blank" rel="noopener">OpenMoHAA</a>
         </p>
 
         <p class="colophon-thanks">
-          Special thanks to the <a href="https://github.com/openmoh/openmohaa" target="_blank" rel="noopener">OpenMohaa</a> team
+          Special thanks to the <a href="https://github.com/openmoh/openmohaa" target="_blank" rel="noopener">OpenMoHAA</a> team
           for keeping this classic alive.
         </p>
 

@@ -2,6 +2,9 @@
 
 **Medal of Honor: Allied Assault dedicated server in Docker, powered by OpenMoHAA.**
 
+**Guide site: <https://a-magdy.github.io/openmohaa-server-kit/>**: installing
+and playing the game, hosting a server, maps and FAQ.
+
 Host an [OpenMoHAA](https://github.com/openmoh/openmohaa) dedicated server for
 Medal of Honor: Allied Assault (and Spearhead / Breakthrough) with Docker
 Compose. All settings live in one `.env` file.
@@ -49,8 +52,9 @@ cd openmohaa-server-kit
 
 cp .env.example .env        # set SERVER_HOSTNAME, RCON_PASSWORD, maps...
 
-# Copy pak*.pk3 from your own copy into ./game/main (and mainta/, maintt/)
-./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_allied_assault_war_chest.exe
+# Copy pak*.pk3 from your own copy into ./game/main (and mainta/, maintt/).
+# Keep the installer's .bin parts next to the .exe.
+./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_*.exe
 #   or: --source "/path/to/installed/Medal of Honor Allied Assault"
 
 docker compose up -d
@@ -114,7 +118,7 @@ Drop `.pk3` files into `custom/` and add their map names to `MAP_ROTATION`. See
 | `rcon/` | Python RCON and status tools, no dependencies |
 | `hosting/vps.md` | Running on a VPS |
 | `docs/faq/` | Paths, troubleshooting, map downloads |
-| `site/` | Static guide site for GitHub Pages (`.github/workflows/pages.yml`) |
+| `site/` | The [guide site](https://a-magdy.github.io/openmohaa-server-kit/), published to GitHub Pages by `.github/workflows/pages.yml` |
 
 ## Building the image yourself
 

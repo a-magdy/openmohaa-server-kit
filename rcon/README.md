@@ -4,7 +4,7 @@ Manage a running server remotely: change maps, add bots, kick players.
 
 ## Prerequisites
 
-- A running instance of OpenMohaa server
+- A running instance of OpenMoHAA server
 - Basic knowledge of terminal commands
 - `RCON_PASSWORD` set in the kit's `.env` (empty turns RCON off)
 - In your client game, enable the UI console

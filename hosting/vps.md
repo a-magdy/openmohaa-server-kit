@@ -1,7 +1,7 @@
 # Hosting on a VPS
 
 Works on any Linux VPS or home server with Docker: Hetzner, DigitalOcean,
-OVH, a Raspberry Pi 4/5 (arm64), and so on.
+OVH, a Raspberry Pi 4/5 with a 64-bit OS (arm64), and so on.
 
 ## Size
 
@@ -54,7 +54,7 @@ kit. Prepare them on your own computer, then upload over SSH:
 
 ```bash
 # on your computer, in your local clone
-./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_allied_assault_war_chest.exe
+./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_*.exe
 ./scripts/upload-game-files.sh user@your-server
 ```
 
@@ -69,7 +69,7 @@ docker compose up -d
 docker compose logs -f   # Ctrl+C to stop following
 ```
 
-The first start downloads the pinned OpenMoHAA release (~17 MB) into the
+The first start downloads the pinned OpenMoHAA release (~16 MB) into the
 `data` volume. Check it from anywhere:
 
 ```bash
