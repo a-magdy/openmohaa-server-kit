@@ -1,9 +1,9 @@
 name: Pages
 
-# Publishes site/ to GitHub Pages. Off until the repository is public:
-# then enable Pages (Settings > Pages > Source: GitHub Actions) and set the
-# repository variable PAGES_ENABLED=true (Settings > Secrets and variables >
-# Actions > Variables).
+# Publishes site/ to https://a-magdy.github.io/openmohaa-server-kit/.
+# To turn it on: enable Pages (Settings > Pages > Source: GitHub Actions)
+# and set the repository variable PAGES_ENABLED=true (Settings > Secrets and
+# variables > Actions > Variables).
 
 on:
   push:

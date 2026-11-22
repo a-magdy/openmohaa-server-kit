@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Shared RCON library for OpenMohaa server management.
+Shared RCON library for OpenMoHAA server management.
 Provides UDP-based RCON communication using the Quake protocol.
 """
 

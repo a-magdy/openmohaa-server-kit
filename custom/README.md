@@ -24,8 +24,8 @@ content.
    Paths must start with `maps/`, `textures/`, `sound/` and so on. If they
    start with `main/`, the archive was packed one level too deep: unzip it and
    zip the contents of `main/` again, or the server will not find the map.
-3. Put the `.pk3` in this folder and add the map name to `MAP_ROTATION` in
-   `.env`.
+3. Put the `.pk3` in this folder, add the map name to `MAP_ROTATION` in
+   `.env`, and run `docker compose up -d`.
 4. Players need the same `.pk3`. Either share it, or host it and set
    `DOWNLOAD_URL` (see [nginx downloads](../docs/faq/nginx-downloads.md)).
 

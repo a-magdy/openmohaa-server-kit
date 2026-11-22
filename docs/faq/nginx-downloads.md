@@ -35,7 +35,7 @@ server {
     }
 }
 
-# HTTPS (OpenMohaa-friendly)
+# HTTPS (OpenMoHAA-friendly)
 server {
     listen 443 ssl;
     server_name example.com;
