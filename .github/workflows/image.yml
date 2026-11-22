@@ -11,7 +11,21 @@ permissions:
   contents: read
 
 jobs:
+  # The reusable server-*.yml workflows pin their own release version; refuse
+  # to publish a tag they don't match (see scripts/release-version.sh).
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check KIT_VERSION matches the tag
+        env:
+          TAG: ${{ github.ref_name }}
+        run: ./scripts/release-version.sh check "$TAG"
+
   publish:
+    needs: version
     runs-on: ubuntu-latest
     permissions:
       contents: read

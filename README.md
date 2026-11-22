@@ -66,7 +66,9 @@ in-game server browser when `PUBLIC_LISTING=1`.
 
 Hosting on a VPS? Prepare the game files on your computer, then follow
 [hosting/vps.md](hosting/vps.md); `./scripts/upload-game-files.sh user@host`
-copies them up over SSH.
+copies them up over SSH. To manage the server from your own GitHub repository
+instead (edit `server.env`, push, it deploys), use the reusable workflows in
+[hosting/github-actions.md](hosting/github-actions.md).
 
 ## Settings
 
@@ -94,7 +96,8 @@ Edit `.env`, then `docker compose up -d` to apply.
 
 Anything else goes in `custom/custom.cfg`; start from
 [custom/custom.cfg.example](custom/custom.cfg.example). Values in `.env` must
-not contain `"`, `;` or line breaks.
+not contain `"`, `;` or line breaks. Wrap a value that contains ` #` in single
+quotes (`SERVER_HOSTNAME='Clan #1 server'`), or Compose cuts it off there.
 
 The server config is rendered at each start in this order: base config →
 `.env` settings → `custom.cfg` → map rotation → start map.
@@ -114,9 +117,11 @@ Drop `.pk3` files into `custom/` and add their map names to `MAP_ROTATION`. See
 | `docker/` | `Dockerfile`, `entrypoint.sh` (validate, download, render, run), `healthcheck.sh` |
 | `config/` | Base server config and helper cfgs (`bots.cfg`, `help.cfg`) |
 | `custom/` | Your `custom.cfg` and extra `.pk3` files (git-ignored) |
-| `scripts/` | `prepare-game-files.sh`, `upload-game-files.sh`, `validate-pk3.sh` |
+| `scripts/` | `prepare-game-files.sh`, `upload-game-files.sh`, `validate-pk3.sh`, `release-version.sh` |
+| `deploy/` | Scripts behind the reusable `server-*.yml` workflows ([reference](deploy/README.md)) |
 | `rcon/` | Python RCON and status tools, no dependencies |
-| `hosting/vps.md` | Running on a VPS |
+| `hosting/vps.md` | Running on a VPS by hand |
+| `hosting/github-actions.md` | Running on a VPS from your own GitHub repository |
 | `docs/faq/` | Paths, troubleshooting, map downloads |
 | `site/` | The [guide site](https://a-magdy.github.io/openmohaa-server-kit/), published to GitHub Pages by `.github/workflows/pages.yml` |
 

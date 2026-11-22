@@ -40,3 +40,12 @@ repos:
     rev: v1.32.0
     hooks:
       - id: zizmor
+
+  - repo: local
+    hooks:
+      - id: kit-version
+        name: server workflows pin one kit version
+        entry: scripts/release-version.sh check
+        language: script
+        files: ^(\.github/workflows/server-.*\.yml|scripts/release-version\.sh)$
+        pass_filenames: false
