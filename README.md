@@ -92,6 +92,7 @@ Drop `.pk3` files into `custom/` and add their map names to `MAP_ROTATION`. See
 | `rcon/` | Python RCON and status tools, no dependencies |
 | `hosting/vps.md` | Running on a VPS |
 | `docs/faq/` | Paths, troubleshooting, map downloads |
+| `site/` | Static guide site for GitHub Pages (`.github/workflows/pages.yml`) |
 
 ## Building the image yourself
 

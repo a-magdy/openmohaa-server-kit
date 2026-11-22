@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenMoHAA Server Kit — MOHAA Dedicated Server with Docker</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231a1a18'/><polygon points='16,4 18.8,12.2 27.5,12.2 20.3,17.4 23.1,25.6 16,20.8 8.9,25.6 11.7,17.4 4.5,12.2 13.2,12.2' fill='%23c4a97a'/></svg>" />
+  <meta name="description" content="Host a Medal of Honor: Allied Assault (MOHAA) dedicated server with Docker Compose and the OpenMoHAA engine, plus a guide to installing and playing the game on modern hardware." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="OpenMoHAA Server Kit — MOHAA Dedicated Server with Docker" />
+  <meta property="og:description" content="Host a Medal of Honor: Allied Assault (MOHAA) dedicated server with Docker Compose and the OpenMoHAA engine, plus a guide to installing and playing the game on modern hardware." />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts: Cinzel (hero) + Cormorant Garamond (display) + Lora (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Site-wide sepia film grain overlay -->
+<div class="grain-overlay" aria-hidden="true"></div>
+
+<!-- Reading progress bar (2px brass line) -->
+<div id="readingProgress" role="progressbar" aria-label="Reading progress" aria-valuenow="0"></div>
+
+<!-- Scroll-pinned chapter numeral (right margin, fixed) -->
+<div id="chapterNumeralFixed" aria-hidden="true"></div>
+
+<!-- Letterbox bars (hero cinematic frame, fade on scroll) -->
+<div class="letterbox letterbox-top" aria-hidden="true"></div>
+<div class="letterbox letterbox-bottom" aria-hidden="true"></div>
+
+<!-- =====================================================================
+     MASTHEAD
+====================================================================== -->
+<nav class="masthead" id="masthead" role="navigation" aria-label="Main navigation">
+  <div class="masthead-inner">
+    <a class="masthead-brand" href="#hero">
+      <span class="masthead-star" aria-hidden="true">★</span>
+      OpenMoHAA Server Kit
+    </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle-input" aria-hidden="true" />
+    <label for="nav-toggle" class="nav-toggle-label" aria-label="Toggle navigation menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </label>
+    <div class="masthead-nav" role="list">
+      <a href="#overview" role="listitem">Overview</a>
+      <a href="#install" role="listitem">Install</a>
+      <a href="#launch" role="listitem">Launch</a>
+      <a href="#config" role="listitem">Config</a>
+      <a href="#quickstart" role="listitem">Quickstart</a>
+      <a href="#server" role="listitem">Hosting</a>
+      <a href="#maps" role="listitem">Maps</a>
+      <a href="#faq" role="listitem">FAQ</a>
+      <a href="#community" role="listitem">Community</a>
+    </div>
+    <span class="masthead-edition" aria-hidden="true">OpenMoHAA v0.82.1</span>
+  </div>
+</nav>
+
+<!-- =====================================================================
+     HERO — Cinematic letterbox · Three.js smoke · letter-rise title
+====================================================================== -->
+<section id="hero" class="hero" aria-label="Hero">
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+  <div class="hero-inner">
+    <div class="hero-classification reveal-fade" aria-hidden="true">— Classified — Eyes Only —</div>
+
+    <div class="hero-eyebrow reveal-fade">Medal of Honor</div>
+
+    <h1 class="hero-title" id="heroTitle" aria-label="Allied Assault">
+      <!-- JS injects .char spans per .word; words pre-wrapped to prevent mid-word breaks -->
+      <span class="word">ALLIED</span>
+      <span class="word">ASSAULT</span>
+    </h1>
+
+    <div class="hero-subtitle reveal-fade">Server Kit</div>
+
+    <div class="hero-meta reveal-fade">
+      <span class="hero-badge">OpenMohaa v0.82.1</span>
+      <span class="hero-year">2026</span>
+    </div>
+
+    <p class="hero-desc reveal-fade">
+      Relive the classic World War II shooter with full modern compatibility
+      and active multiplayer servers —
+      powered by the <em>OpenMohaa</em> open-source engine revival.
+    </p>
+
+    <div class="hero-actions reveal-fade">
+      <a href="#quickstart" class="btn-primary">Host a Server</a>
+      <a href="https://github.com/a-magdy/openmohaa-server-kit" class="btn-ghost" target="_blank" rel="noopener">GitHub Repo</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll-hint reveal-fade" aria-hidden="true">
+    <span class="scroll-line"></span>
+    <span class="scroll-label">scroll</span>
+  </div>
+</section>
+
+<!-- =====================================================================
+     I. OVERVIEW
+====================================================================== -->
+<div class="section-divider" aria-hidden="true">
+  <span class="divider-line"></span>
+  <span class="divider-ornament">★</span>
+  <span class="divider-line"></span>
+</div>
+
+<section id="overview" class="chapter" data-chapter="I">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">I</span>
+          <span class="chapter-name">Overview</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">What Is This Kit?</h2>
+
+      <div class="prose">
+        <p class="has-drop-cap reveal-up">
+          Medal of Honor: Allied Assault was released in 2002 and remains one of the finest
+          World War II shooters ever crafted — its Omaha Beach sequence a milestone of
+          interactive storytelling. The game went dark on modern hardware for years.
+          Then <strong>OpenMoHAA</strong> arrived: a faithful, community-built open-source
+          engine revival that breathes full life back into this classic.
+        </p>
+        <p class="reveal-up">
+          The <strong>OpenMoHAA Server Kit</strong> runs a MOHAA dedicated server with Docker Compose.
+          Every setting lives in one <code>.env</code> file. It runs on a laptop, a home server or
+          any Linux VPS, on amd64 or arm64. It ships no game data: you bring your own copy of the game.
+        </p>
+      </div>
+
+      <div class="feature-grid reveal-up">
+        <div class="feature-item">
+          <div class="feature-item-label">One <code>.env</code> File</div>
+          <div class="feature-item-desc">Hostname, passwords, game type, maps, bots</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-label">Docker Compose</div>
+          <div class="feature-item-desc"><code>docker compose up -d</code> and play</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-label">amd64 &amp; arm64</div>
+          <div class="feature-item-desc">VPS, home server or Raspberry Pi 4/5</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-label">Verified Engine</div>
+          <div class="feature-item-desc">Pinned OpenMoHAA release, sha256-checked</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-label">Hardened</div>
+          <div class="feature-item-desc">Non-root, game files mounted read-only</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-label">Settings Check</div>
+          <div class="feature-item-desc">Says clearly what's wrong before starting</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-label">Custom Maps</div>
+          <div class="feature-item-desc">Drop <code>.pk3</code> files into <code>custom/</code></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-label">Python RCON Tools</div>
+          <div class="feature-item-desc"><code>rcon.py</code> · bots · status, no dependencies</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     II. PICK YOUR PATH
+====================================================================== -->
+<section id="pick-your-path" class="chapter" data-chapter="II">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">II</span>
+          <span class="chapter-name">Pick Your Path</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Choose Your Mission</h2>
+      <p class="chapter-intro reveal-up">
+        Chapter III (Install) gets you the game files everyone needs. After that,
+        pick the path that matches your objective.
+      </p>
+
+      <div class="path-grid">
+
+        <div class="path-card reveal-up">
+          <div class="path-card-num">01</div>
+          <div class="path-card-title">Play Only</div>
+          <p class="path-card-desc">Run MOHAA on your own machine and join servers. No server required.</p>
+          <a class="path-card-link" href="#launch">Go to Launch →</a>
+        </div>
+
+        <div class="path-card reveal-up">
+          <div class="path-card-num">02</div>
+          <div class="path-card-title">Local Docker Server</div>
+          <p class="path-card-desc">Run a server on your own computer with Docker Compose.</p>
+          <a class="path-card-link" href="#quickstart">Go to Quickstart →</a>
+        </div>
+
+        <div class="path-card reveal-up">
+          <div class="path-card-num">03</div>
+          <div class="path-card-title">VPS or Home Server</div>
+          <p class="path-card-desc">Host a public server on any Linux box with Docker.</p>
+          <a class="path-card-link" href="#server">Go to Hosting →</a>
+        </div>
+
+        <div class="path-card reveal-up">
+          <div class="path-card-num">04</div>
+          <div class="path-card-title">Custom Maps</div>
+          <p class="path-card-desc">Add community maps and let players download them.</p>
+          <a class="path-card-link" href="#maps">Go to Maps →</a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     III. INSTALLATION
+====================================================================== -->
+<section id="install" class="chapter" data-chapter="III">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">III</span>
+          <span class="chapter-name">Installation</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Getting the Game &amp; Engine</h2>
+      <p class="chapter-intro reveal-up">
+        Two prerequisites: the original game files (GOG) and the OpenMohaa engine release.
+      </p>
+
+      <!-- NOTE box -->
+      <div class="fm-box fm-box-note reveal-up">
+        <div class="fm-box-header">
+          <span class="fm-box-icon">&#9432;</span>
+          Note — Legal
+        </div>
+        <div class="fm-box-body">
+          <p>You must obtain the original MOHAA game files yourself via a legitimate purchase
+          (GOG.com). This kit contains no game data and never downloads it. It does not
+          distribute or reproduce any copyrighted game content.</p>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">1</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Purchase &amp; Download from GOG</div>
+          <p><a href="https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest" class="btn-gog" target="_blank" rel="noopener">Buy on GOG — Medal of Honor: Allied Assault War Chest</a></p>
+          <p>Create an account on <a href="https://www.gog.com" target="_blank" rel="noopener">GOG.com</a> and
+          purchase <strong>Medal of Honor: Allied Assault War Chest</strong>.</p>
+          <p>Navigate to Account → Games and scroll to <em>Download offline backup game installers</em>.
+          Download all three files:</p>
+          <ul class="editorial-list">
+            <li><code>setup_medal_of_honor_2.0.0.21.exe</code></li>
+            <li><code>setup_medal_of_honor_2.0.0.21-1.bin</code></li>
+            <li><code>setup_medal_of_honor_2.0.0.21-2.bin</code></li>
+          </ul>
+          <p class="prose-note">Filenames shown are examples and may differ for your GOG account version.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 — Extract with platform tabs -->
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">2</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Extract Game Files</div>
+          <div class="platform-tabs" data-tabs>
+            <div class="platform-tab-buttons" role="tablist">
+              <button class="ptab-btn active" data-platform="extract-win" role="tab" aria-selected="true">Windows</button>
+              <button class="ptab-btn" data-platform="extract-mac" role="tab" aria-selected="false">macOS</button>
+              <button class="ptab-btn" data-platform="extract-linux" role="tab" aria-selected="false">Linux</button>
+            </div>
+            <div class="ptab-pane active" id="extract-win" role="tabpanel">
+              <p>Run the <code>.exe</code> installer to extract game files into a folder (e.g. <code>~/games/mohaa</code>).</p>
+            </div>
+            <div class="ptab-pane" id="extract-mac" role="tabpanel">
+              <p>Install <strong>innoextract</strong> and run:</p>
+              <pre><code>brew install innoextract
+innoextract setup_medal_of_honor_2.0.0.21.exe</code></pre>
+              <p>Or use Docker (nothing to install on the host):</p>
+              <pre><code>docker run --rm -v "$PWD":/data -w /data debian:stable-slim \
+  bash -c "apt-get update -qq &amp;&amp; apt-get install -y -qq innoextract \
+           &amp;&amp; innoextract --gog setup_medal_of_honor_*.exe \
+           &amp;&amp; chown -R $(id -u):$(id -g) app"</code></pre>
+              <p>Rename the resulting <code>app</code> folder to <code>mohaa</code>.</p>
+            </div>
+            <div class="ptab-pane" id="extract-linux" role="tabpanel">
+              <p>Install <strong>innoextract</strong> via your package manager, or run it in Docker:</p>
+              <pre><code>docker run --rm -v "$PWD":/data -w /data debian:stable-slim \
+  bash -c "apt-get update -qq &amp;&amp; apt-get install -y -qq innoextract \
+           &amp;&amp; innoextract --gog setup_medal_of_honor_*.exe \
+           &amp;&amp; chown -R $(id -u):$(id -g) app"</code></pre>
+              <p>Rename the resulting <code>app</code> directory to <code>mohaa</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 — Download OpenMohaa -->
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">3</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Download OpenMohaa</div>
+          <p>Visit the <a href="https://github.com/openmoh/openmohaa/releases" target="_blank" rel="noopener">OpenMohaa releases page</a>
+          and download the latest release (<strong>v0.82.1</strong> or newer) for your platform:</p>
+
+          <div class="download-grid">
+            <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-windows-x64.zip" target="_blank" rel="noopener">
+              <span class="download-platform">Windows x64</span>
+              <span class="download-file">openmohaa-v0.82.1-windows-x64.zip</span>
+            </a>
+            <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-macos-multiarch.arm64-x86_64.zip" target="_blank" rel="noopener">
+              <span class="download-platform">macOS Universal</span>
+              <span class="download-file">openmohaa-v0.82.1-macos-multiarch…zip</span>
+            </a>
+            <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-windows-arm64.zip" target="_blank" rel="noopener">
+              <span class="download-platform">Windows ARM64</span>
+              <span class="download-file">openmohaa-v0.82.1-windows-arm64.zip</span>
+            </a>
+            <a class="download-item" href="https://github.com/openmoh/openmohaa/releases/download/v0.82.1/openmohaa-v0.82.1-linux-amd64.zip" target="_blank" rel="noopener">
+              <span class="download-platform">Linux x64</span>
+              <span class="download-file">openmohaa-v0.82.1-linux-amd64.zip</span>
+            </a>
+          </div>
+          <p>Extract the zip directly into your <code>mohaa</code> game directory.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 — Prepare files -->
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">4</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Prepare for Execution</div>
+          <div class="platform-tabs" data-tabs>
+            <div class="platform-tab-buttons" role="tablist">
+              <button class="ptab-btn active" data-platform="prep-win" role="tab" aria-selected="true">Windows</button>
+              <button class="ptab-btn" data-platform="prep-mac" role="tab" aria-selected="false">macOS &amp; Linux</button>
+            </div>
+            <div class="ptab-pane active" id="prep-win" role="tabpanel">
+              <p>Nothing extra required — extract and play.</p>
+            </div>
+            <div class="ptab-pane" id="prep-mac" role="tabpanel">
+              <p>From the game directory, remove quarantine flags and make files executable:</p>
+              <pre><code>xattr -rd com.apple.quarantine ./ 2&gt;/dev/null || true
+chmod +x launch_openmohaa_* omohaaded openmohaa</code></pre>
+              <p class="note"><small>The <code>xattr</code> line is macOS-only (safely ignored on Linux). <code>chmod +x</code> applies to both.</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     IV. LAUNCH
+====================================================================== -->
+<section id="launch" class="chapter" data-chapter="IV">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">IV</span>
+          <span class="chapter-name">Launch</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Playing the Game</h2>
+      <p class="chapter-intro reveal-up">
+        Three launch targets — the base
+        <span class="redact-wrap"><span class="redact-bar"></span><span class="redact-text">ALLIED ASSAULT</span></span>
+        and its
+        <span class="redact-wrap"><span class="redact-bar"></span><span class="redact-text">EXPANSIONS</span></span>.
+        Choose which to launch below.
+      </p>
+
+      <div class="launch-grid">
+
+        <div class="launch-item reveal-up">
+          <div class="launch-title">Base Game</div>
+          <div class="launch-subtitle">Medal of Honor: Allied Assault</div>
+          <pre><code>./launch_openmohaa_base</code></pre>
+        </div>
+
+        <div class="launch-item reveal-up">
+          <div class="launch-title">Spearhead</div>
+          <div class="launch-subtitle">Allied Assault: Spearhead expansion</div>
+          <pre><code>./launch_openmohaa_spearhead</code></pre>
+        </div>
+
+        <div class="launch-item reveal-up">
+          <div class="launch-title">Breakthrough</div>
+          <div class="launch-subtitle">Allied Assault: Breakthrough expansion</div>
+          <pre><code>./launch_openmohaa_breakthrough</code></pre>
+        </div>
+
+      </div>
+
+      <h3 class="prose-subhead reveal-up">Custom Resolution</h3>
+      <p class="reveal-up">Launch with a specific resolution using command-line arguments:</p>
+      <pre class="reveal-up"><code>./launch_openmohaa_base +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080</code></pre>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     V. CONFIGURATION
+====================================================================== -->
+<section id="config" class="chapter" data-chapter="V">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">V</span>
+          <span class="chapter-name">Configuration</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Configuration &amp; Customisation</h2>
+      <p class="chapter-intro reveal-up">
+        Tweak graphics, controls, and gameplay settings. The
+        <span class="redact-wrap"><span class="redact-bar"></span><span class="redact-text">CONFIG</span></span>
+        directory is platform-specific.
+      </p>
+
+      <!-- Step 5 -->
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">5</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Locate Your Config Directory</div>
+          <div class="platform-tabs" data-tabs>
+            <div class="platform-tab-buttons" role="tablist">
+              <button class="ptab-btn active" data-platform="cfg-win" role="tab" aria-selected="true">Windows</button>
+              <button class="ptab-btn" data-platform="cfg-mac" role="tab" aria-selected="false">macOS</button>
+              <button class="ptab-btn" data-platform="cfg-linux" role="tab" aria-selected="false">Linux</button>
+            </div>
+            <div class="ptab-pane active" id="cfg-win" role="tabpanel">
+              <p>Config directory: <code>%APPDATA%\openmohaa</code></p>
+              <p>Config file: <code>%APPDATA%\openmohaa\main\configs\omconfig.cfg</code></p>
+            </div>
+            <div class="ptab-pane" id="cfg-mac" role="tabpanel">
+              <p>Config directory: <code>~/Library/Application Support/openmohaa</code></p>
+              <p>Config file: <code>~/Library/Application Support/openmohaa/main/configs/omconfig.cfg</code></p>
+            </div>
+            <div class="ptab-pane" id="cfg-linux" role="tabpanel">
+              <p>Config directory: <code>~/.openmohaa</code></p>
+              <p>Config file: <code>~/.openmohaa/main/configs/omconfig.cfg</code></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">6</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Customise Your Experience</div>
+          <p>Back up <code>omconfig.cfg</code>, then edit it to adjust graphics, controls, and gameplay:</p>
+          <ul class="editorial-list">
+            <li><strong>Graphics</strong> — resolution, fullscreen, aspect ratio, GPU settings</li>
+            <li><strong>Controls</strong> — key bindings, mouse sensitivity</li>
+            <li><strong>Gameplay</strong> — friendly fire, fall damage, lean movement</li>
+          </ul>
+          <p>Server paths are different; see <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/config-paths.md" target="_blank" rel="noopener">docs/faq/config-paths.md</a>.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     VI. QUICKSTART
+====================================================================== -->
+<section id="quickstart" class="chapter" data-chapter="VI">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">VI</span>
+          <span class="chapter-name">Quickstart</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Local Docker Quickstart</h2>
+      <p class="chapter-intro reveal-up">
+        You need Docker with Compose, and your GOG installer or an installed copy of the game.
+        Everything is driven by a single <code>.env</code> file.
+      </p>
+
+      <div class="diagram-wrapper reveal-up">
+        <svg class="diagram-svg" viewBox="0 0 640 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Server kit diagram: your game files and .env feed the Docker container">
+          <rect x="30" y="60" width="160" height="100" rx="2" stroke="#a67e3c" stroke-width="1.5" fill="rgba(166,126,60,0.06)"/>
+          <text x="110" y="50" text-anchor="middle" font-family="'Lora', Georgia, serif" font-size="10" fill="#a67e3c" letter-spacing="0.12em">YOUR GAME FILES</text>
+          <text x="110" y="105" text-anchor="middle" font-family="'Menlo', monospace" font-size="9" fill="#0f1419">game/main/pak*.pk3</text>
+          <text x="110" y="120" text-anchor="middle" font-family="'Menlo', monospace" font-size="9" fill="#0f1419">custom/*.pk3</text>
+          <text x="110" y="135" text-anchor="middle" font-family="'Menlo', monospace" font-size="9" fill="#3a3530" opacity="0.7">prepare-game-files.sh</text>
+          <rect x="230" y="30" width="180" height="160" rx="2" stroke="#2d6a4f" stroke-width="1.5" fill="rgba(45,106,79,0.06)"/>
+          <text x="320" y="22" text-anchor="middle" font-family="'Lora', Georgia, serif" font-size="10" fill="#2d6a4f" letter-spacing="0.12em">DOCKER</text>
+          <text x="320" y="80" text-anchor="middle" font-family="'Menlo', monospace" font-size="9" fill="#0f1419">omohaaded</text>
+          <text x="320" y="95" text-anchor="middle" font-family="'Menlo', monospace" font-size="9" fill="#3a3530">12203/udp · 12300/udp</text>
+          <rect x="255" y="110" width="130" height="30" rx="2" stroke="#2d6a4f" stroke-width="1" fill="rgba(45,106,79,0.1)"/>
+          <text x="320" y="129" text-anchor="middle" font-family="'Menlo', monospace" font-size="8.5" fill="#2d6a4f">compose.yaml</text>
+          <text x="320" y="170" text-anchor="middle" font-family="'Menlo', monospace" font-size="9" fill="#3a3530" opacity="0.7">read-only mounts</text>
+          <rect x="450" y="75" width="140" height="70" rx="2" stroke="#a67e3c" stroke-width="1" fill="rgba(166,126,60,0.06)"/>
+          <text x="520" y="67" text-anchor="middle" font-family="'Lora', Georgia, serif" font-size="10" fill="#a67e3c" letter-spacing="0.12em">SETTINGS</text>
+          <text x="520" y="105" text-anchor="middle" font-family="'Menlo', monospace" font-size="9" fill="#0f1419">.env</text>
+          <text x="520" y="120" text-anchor="middle" font-family="'Menlo', monospace" font-size="8" fill="#3a3530" opacity="0.7">SERVER_HOSTNAME · RCON_PASSWORD</text>
+          <text x="520" y="133" text-anchor="middle" font-family="'Menlo', monospace" font-size="8" fill="#3a3530" opacity="0.7">GAME_TYPE · MAP_ROTATION</text>
+          <line x1="450" y1="110" x2="410" y2="110" stroke="#a67e3c" stroke-width="1" marker-end="url(#arrowBrass)"/>
+          <line x1="190" y1="110" x2="230" y2="110" stroke="#0f1419" stroke-width="1" opacity="0.4" marker-end="url(#arrowInk)"/>
+          <defs>
+            <marker id="arrowBrass" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#a67e3c"/>
+            </marker>
+            <marker id="arrowInk" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#0f1419" opacity="0.4"/>
+            </marker>
+          </defs>
+        </svg>
+        <p class="diagram-caption">Fig. VI-A — Your own game files and one .env file feed a hardened container</p>
+      </div>
+
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">1</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Get the Kit &amp; Configure</div>
+          <pre><code>git clone https://github.com/a-magdy/openmohaa-server-kit.git
+cd openmohaa-server-kit
+cp .env.example .env        # set SERVER_HOSTNAME, RCON_PASSWORD, maps...</code></pre>
+          <p>Every setting is documented in <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/.env.example" target="_blank" rel="noopener">.env.example</a>.</p>
+        </div>
+      </div>
+
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">2</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Prepare Your Game Files</div>
+          <p>Copies <code>pak*.pk3</code> from your own copy into <code>./game/main</code> (and <code>mainta/</code>, <code>maintt/</code>):</p>
+          <pre><code>./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_allied_assault_war_chest.exe
+#   or: --source "/path/to/installed/Medal of Honor Allied Assault"</code></pre>
+        </div>
+      </div>
+
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">3</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Start &amp; Check</div>
+          <pre><code>docker compose up -d
+python3 rcon/rcon-status.py 127.0.0.1</code></pre>
+          <p>Players join with <code>connect &lt;your-ip&gt;:12203</code> in the console, or through the
+          in-game server browser when <code>PUBLIC_LISTING=1</code>.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     VII. HOSTING
+====================================================================== -->
+<section id="server" class="chapter" data-chapter="VII">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">VII</span>
+          <span class="chapter-name">Hosting</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Hosting a Dedicated Server</h2>
+      <p class="chapter-intro reveal-up">
+        Works on any Linux VPS or home server with Docker: Hetzner, DigitalOcean, OVH,
+        a Raspberry Pi 4/5, and so on. Up to ~30 players and bots run comfortably on
+        1 vCPU and 1 GB RAM. Pick a region close to your players; ping matters more than CPU.
+        Full guide: <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/hosting/vps.md" target="_blank" rel="noopener">hosting/vps.md</a>.
+      </p>
+
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">1</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Install Docker &amp; Open the Ports</div>
+          <p>Follow <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">Docker's install guide</a>, then open both UDP ports in your provider's firewall:</p>
+          <pre><code>sudo ufw allow 12203/udp   # game traffic (GAME_PORT)
+sudo ufw allow 12300/udp   # GameSpy browser queries (GAMESPY_PORT)</code></pre>
+        </div>
+      </div>
+
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">2</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Get the Kit on the Server</div>
+          <pre><code>git clone https://github.com/a-magdy/openmohaa-server-kit.git
+cd openmohaa-server-kit
+cp .env.example .env
+nano .env   # hostname, RCON password, game type, maps</code></pre>
+        </div>
+      </div>
+
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">3</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Upload Your Game Files</div>
+          <p>Prepare them on your own computer, then copy them up over SSH:</p>
+          <pre><code># on your computer, in your local clone
+./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_allied_assault_war_chest.exe
+./scripts/upload-game-files.sh user@your-server</code></pre>
+        </div>
+      </div>
+
+      <div class="editorial-step reveal-up">
+        <div class="editorial-step-num">4</div>
+        <div class="editorial-step-body">
+          <div class="editorial-step-title">Start, Check &amp; Update</div>
+          <div class="platform-tabs" data-tabs>
+            <div class="platform-tab-buttons" role="tablist">
+              <button class="ptab-btn active" data-platform="srv-start" role="tab" aria-selected="true">Start</button>
+              <button class="ptab-btn" data-platform="srv-update" role="tab" aria-selected="false">Update</button>
+            </div>
+            <div class="ptab-pane active" id="srv-start" role="tabpanel">
+              <pre><code>docker compose up -d
+docker compose logs -f              # Ctrl+C to stop following
+python3 rcon/rcon-status.py &lt;server-ip&gt;</code></pre>
+            </div>
+            <div class="ptab-pane" id="srv-update" role="tabpanel">
+              <pre><code>git pull
+docker compose pull     # or: docker compose build
+docker compose up -d</code></pre>
+              <p>Pin <code>KIT_VERSION</code> in <code>.env</code> to a release (for example <code>0.1.0</code>) to update only when you choose.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="prose-subhead reveal-up">Key Settings</h3>
+      <div class="cloud-options-grid reveal-up">
+        <div class="cloud-option">
+          <div class="cloud-option-key">SERVER_HOSTNAME</div>
+          <div class="cloud-option-val">Name shown in the server browser.</div>
+        </div>
+        <div class="cloud-option">
+          <div class="cloud-option-key">RCON_PASSWORD</div>
+          <div class="cloud-option-val">At least 8 characters, no spaces. Empty turns RCON off.</div>
+        </div>
+        <div class="cloud-option">
+          <div class="cloud-option-key">GAME_TYPE</div>
+          <div class="cloud-option-val">1 FFA, 2 Team, 3 Round, 4 Objective, 5 Tug-of-War, 6 Liberation.</div>
+        </div>
+        <div class="cloud-option">
+          <div class="cloud-option-key">MAP_ROTATION</div>
+          <div class="cloud-option-val">Space-separated maps, e.g. <code>dm/mohdm1 dm/mohdm2</code>.</div>
+        </div>
+        <div class="cloud-option">
+          <div class="cloud-option-key">MAX_CLIENTS / MAX_BOTS</div>
+          <div class="cloud-option-val">Players and bots; the sum must be 64 or less.</div>
+        </div>
+        <div class="cloud-option">
+          <div class="cloud-option-key">GAME_TARGET</div>
+          <div class="cloud-option-val">0 Allied Assault, 1 Spearhead, 2 Breakthrough.</div>
+        </div>
+      </div>
+      <p class="reveal-up">The full table is in the <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/README.md#settings" target="_blank" rel="noopener">README</a>. Anything else goes in
+      <code>custom/custom.cfg</code>; start from <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/custom/custom.cfg.example" target="_blank" rel="noopener">custom.cfg.example</a>.</p>
+
+      <div class="fm-box fm-box-warning reveal-up" style="margin-top:1.5rem;">
+        <div class="fm-box-header">
+          <span class="fm-box-icon">&#9888;</span>
+          Warning — Firewall &amp; RCON
+        </div>
+        <div class="fm-box-body">
+          <p>Docker publishes ports past <code>ufw</code> rules on its own, so the provider firewall is the one that counts.
+          RCON uses the game port: anyone who can reach it can try passwords, so use a long
+          <code>RCON_PASSWORD</code> or leave it empty.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     VIII. THE MAPS
+====================================================================== -->
+<section id="maps" class="chapter" data-chapter="VIII">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">VIII</span>
+          <span class="chapter-name">The Maps</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Theatres of War</h2>
+      <p class="chapter-intro reveal-up">
+        Seven original maps ship with the base game and come with your own game files.
+        Community maps extend the battlefield considerably; they go in the kit's <code>custom/</code> folder.
+      </p>
+
+      <!-- OG 7 maps — plaque list + thumbnail grid -->
+      <div class="maps-og-section">
+        <h3 class="maps-og-heading reveal-up">Original Seven Maps</h3>
+
+        <!-- Plaque list (memorial style) -->
+        <ul class="plaque-list reveal-up" aria-label="Original seven maps">
+          <li class="plaque-item">
+            <span class="plaque-dash" aria-hidden="true">—</span>
+            <span class="plaque-name">Southern France</span>
+            <span class="plaque-code">dm/mohdm1</span>
+          </li>
+          <li class="plaque-item">
+            <span class="plaque-dash" aria-hidden="true">—</span>
+            <span class="plaque-name">Destroyed Village</span>
+            <span class="plaque-code">dm/mohdm2</span>
+          </li>
+          <li class="plaque-item">
+            <span class="plaque-dash" aria-hidden="true">—</span>
+            <span class="plaque-name">Remagen</span>
+            <span class="plaque-code">dm/mohdm3</span>
+          </li>
+          <li class="plaque-item">
+            <span class="plaque-dash" aria-hidden="true">—</span>
+            <span class="plaque-name">The Crossroads</span>
+            <span class="plaque-code">dm/mohdm4</span>
+          </li>
+          <li class="plaque-item">
+            <span class="plaque-dash" aria-hidden="true">—</span>
+            <span class="plaque-name">Snowy Park</span>
+            <span class="plaque-code">dm/mohdm5</span>
+          </li>
+          <li class="plaque-item">
+            <span class="plaque-dash" aria-hidden="true">—</span>
+            <span class="plaque-name">Stalingrad</span>
+            <span class="plaque-code">dm/mohdm6</span>
+          </li>
+          <li class="plaque-item">
+            <span class="plaque-dash" aria-hidden="true">—</span>
+            <span class="plaque-name">Algiers</span>
+            <span class="plaque-code">dm/mohdm7</span>
+          </li>
+        </ul>
+
+      </div>
+
+      <h3 class="maps-community-heading reveal-up">Community Maps</h3>
+      <p class="reveal-up">Drop a map's <code>.pk3</code> into <code>custom/</code> and add its name to
+      <code>MAP_ROTATION</code>. Players need the same file; host it and set <code>DOWNLOAD_URL</code>
+      to let them download it. Some popular picks:</p>
+
+      <table class="maps-table reveal-up">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Map Name</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Aftermath Revised</td><td>dm/aftermath_revised</td><td><a href="https://www.customapscod.com/map.php?id=MTAzNg==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Worldcup</td><td>dm/dmworldcup</td><td><a href="https://www.customapscod.com/map.php?id=MTE0NA==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Sniper Valley</td><td>dm/snipervalley</td><td><a href="https://www.customapscod.com/map.php?id=MTExNQ==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Stalingrad XL</td><td>dm/stalingrad_xl</td><td><a href="https://www.customapscod.com/map.php?id=MTExOA==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Amsterdam</td><td>dm/amsterdam</td><td><a href="https://www.customapscod.com/map.php?id=MTE4Nw==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Russia</td><td>dm/russia</td><td><a href="https://www.customapscod.com/map.php?id=MTExNA==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Ar Bunkeranlage V1</td><td>dm/ar_bunkeranlage</td><td><a href="https://www.customapscod.com/map.php?id=MTA3MA==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Bocage</td><td>dm/bocage</td><td><a href="https://www.customapscod.com/map.php?id=MTA0Mw==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Downtown</td><td>dm/downtown</td><td><a href="https://www.customapscod.com/map.php?id=MTA1Ng==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Southern France 2</td><td>dm/southern_france_2</td><td><a href="https://www.customapscod.com/map.php?id=MTExNg==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Morocco</td><td>dm/morocco</td><td><a href="https://www.customapscod.com/map.php?id=MTEwNQ==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Italy</td><td>dm/italy</td><td><a href="https://www.customapscod.com/map.php?id=MTA2Mg==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Marakesh</td><td>dm/marakesh</td><td><a href="https://www.customapscod.com/map.php?id=MTA4MA==" target="_blank" rel="noopener">Download</a></td></tr>
+          <tr><td>Temple of Anubis</td><td>dm/templeofanubis</td><td><a href="https://www.customapscod.com/map.php?id=MTk5Mg==" target="_blank" rel="noopener">Download</a></td></tr>
+        </tbody>
+      </table>
+
+      <div class="fm-box fm-box-note reveal-up">
+        <div class="fm-box-header">
+          <span class="fm-box-icon">&#9432;</span>
+          Note — Third-Party Content
+        </div>
+        <div class="fm-box-body">
+          <p>Community maps and mods belong to their authors. This kit never ships them; check each map's
+          licence or readme before hosting it for download. See <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/custom/README.md" target="_blank" rel="noopener">custom/README.md</a>
+          for checking a <code>.pk3</code>, more map archives and the bots mod.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     IX. FAQ
+====================================================================== -->
+<div class="section-divider" aria-hidden="true">
+  <span class="divider-line"></span>
+  <span class="divider-ornament">★</span>
+  <span class="divider-line"></span>
+</div>
+
+<section id="faq" class="chapter" data-chapter="IX">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">IX</span>
+          <span class="chapter-name">Frequently Asked Questions</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">FAQ</h2>
+      <p class="chapter-intro reveal-up">
+        Common questions and troubleshooting. Full docs in
+        <a href="https://github.com/a-magdy/openmohaa-server-kit/tree/main/docs/faq" target="_blank" rel="noopener">docs/faq/</a>.
+      </p>
+
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            Where is my OpenMoHAA config directory?
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p><strong>Windows:</strong> <code>%APPDATA%\openmohaa</code></p>
+            <p><strong>Mac:</strong> <code>~/Library/Application Support/openmohaa</code></p>
+            <p><strong>Linux:</strong> <code>~/.openmohaa</code></p>
+            <p>See <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/config-paths.md" target="_blank" rel="noopener">docs/faq/config-paths.md</a>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            Where do custom maps go?
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p><strong>Server (this kit):</strong> put the <code>.pk3</code> in <code>custom/</code> and run <code>docker compose restart</code>.</p>
+            <p><strong>Client:</strong> put it in the <code>main</code> subdirectory of your OpenMoHAA config folder.</p>
+            <p>If the paths inside the <code>.pk3</code> start with <code>main/</code>, it was packed one level too deep; see <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/custom/README.md" target="_blank" rel="noopener">custom/README.md</a>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            The in-game console doesn't open when I press ~
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p>Go to <strong>Settings → Advanced</strong> and enable the <em>Console</em> checkbox, or add <code>seta ui_console "1"</code> to <code>omconfig.cfg</code>. Also check your keyboard layout — the <code>~</code> key mapping may differ.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            macOS: game won't launch / blocked by Gatekeeper
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p>Remove the quarantine flag and make files executable:</p>
+            <pre><code>xattr -rd com.apple.quarantine ./
+chmod +x launch_openmohaa_* omohaaded openmohaa</code></pre>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            How do I add bots?
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p>Set <code>MAX_BOTS</code> and either <code>BOT_COUNT</code> (fixed number) or <code>BOT_FILL_MIN_PLAYERS</code> (fill up to that many players) in <code>.env</code>. <code>MAX_CLIENTS</code> + <code>MAX_BOTS</code> must be 64 or less. With RCON on you can also run <code>rcon addbot</code> or <code>rcon exec bots.cfg</code>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            The server doesn't start — what's wrong?
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p>Run <code>docker compose logs</code>. The kit checks your settings and game files before starting and says what's wrong, for example a missing <code>pak0.pk3</code> or an <code>RCON_PASSWORD</code> that is too short.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            Network / server not reachable — how do I diagnose?
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <pre><code>sudo ss -ulnp | grep :12203
+python3 rcon/rcon-status.py &lt;server-ip&gt;
+nmap -sU -p 12203 &lt;server-ip&gt;</code></pre>
+            <p>Check that both UDP ports are open in your provider's firewall. See <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/troubleshooting.md" target="_blank" rel="noopener">docs/faq/troubleshooting.md</a>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            Players can't auto-download maps from my server
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p>Set <code>DOWNLOAD_URL</code> in <code>.env</code> to a public HTTP(S) location serving your custom <code>.pk3</code> files. See <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/nginx-downloads.md" target="_blank" rel="noopener">docs/faq/nginx-downloads.md</a> and <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/docs/faq/download-validation.md" target="_blank" rel="noopener">docs/faq/download-validation.md</a>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question reveal-up" aria-expanded="false">
+            Does the kit include the game?
+            <span class="faq-toggle" aria-hidden="true">▸</span>
+          </button>
+          <div class="faq-answer">
+            <p>No. The kit contains no game data and never downloads it. Buy <em>Medal of Honor: Allied Assault War Chest</em> on GOG and use your own copy. Only the open-source OpenMoHAA engine is downloaded, at first start, and its sha256 is checked.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     X. COMMUNITY
+====================================================================== -->
+<section id="community" class="chapter" data-chapter="X">
+  <div class="grid-page">
+    <div class="col-body">
+
+      <div class="chapter-label-block">
+        <div class="chapter-label-inner">
+          <span class="chapter-numeral-inline">X</span>
+          <span class="chapter-name">Community</span>
+        </div>
+        <hr class="chapter-rule" />
+      </div>
+
+      <h2 class="chapter-heading reveal-up">Community &amp; Support</h2>
+      <p class="chapter-intro reveal-up">
+        Report bugs, read the guides, or contribute to the kit.
+      </p>
+
+      <div class="community-grid">
+
+        <h4 class="community-group-heading reveal-up">Host</h4>
+
+        <a class="community-item reveal-up" href="https://github.com/a-magdy/openmohaa-server-kit" target="_blank" rel="noopener">
+          <span class="community-item-label">GitHub Repository</span>
+          <span class="community-item-desc">Compose setup, config, scripts and RCON tools</span>
+        </a>
+
+        <a class="community-item reveal-up" href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/hosting/vps.md" target="_blank" rel="noopener">
+          <span class="community-item-label">VPS Guide</span>
+          <span class="community-item-desc">Sizing, ports, uploads and updates</span>
+        </a>
+
+        <a class="community-item reveal-up" href="https://github.com/a-magdy/openmohaa-server-kit/tree/main/docs/faq" target="_blank" rel="noopener">
+          <span class="community-item-label">FAQ</span>
+          <span class="community-item-desc">Paths, troubleshooting, map downloads</span>
+        </a>
+
+        <h4 class="community-group-heading reveal-up">Play</h4>
+
+        <a class="community-item reveal-up" href="https://github.com/openmoh/openmohaa" target="_blank" rel="noopener">
+          <span class="community-item-label">OpenMoHAA Project</span>
+          <span class="community-item-desc">The open-source engine powering the revival</span>
+        </a>
+
+        <a class="community-item reveal-up" href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/rcon/README.md" target="_blank" rel="noopener">
+          <span class="community-item-label">RCON Tools</span>
+          <span class="community-item-desc">Status, bots and remote commands from Python</span>
+        </a>
+
+        <h4 class="community-group-heading reveal-up">Contribute</h4>
+
+        <a class="community-item reveal-up" href="https://github.com/a-magdy/openmohaa-server-kit/issues" target="_blank" rel="noopener">
+          <span class="community-item-label">Report a Bug</span>
+          <span class="community-item-desc">Open an issue — include version, platform, and repro steps</span>
+        </a>
+
+        <a class="community-item reveal-up" href="https://github.com/a-magdy/openmohaa-server-kit/pulls" target="_blank" rel="noopener">
+          <span class="community-item-label">Pull Requests</span>
+          <span class="community-item-desc">Improvements to configs, docs and scripts are welcome</span>
+        </a>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     COLOPHON / FOOTER
+====================================================================== -->
+<footer class="colophon">
+  <div class="grid-page">
+    <div class="col-body">
+      <div class="colophon-inner">
+        <span class="colophon-star" aria-hidden="true">★</span>
+        <span class="colophon-rule" aria-hidden="true"></span>
+
+        <p class="colophon-text">
+          <span>OpenMoHAA Server Kit</span>
+          <span class="colophon-sep" aria-hidden="true">·</span>
+          <a href="https://github.com/a-magdy/openmohaa-server-kit/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+          <span class="colophon-sep" aria-hidden="true">·</span>
+          <a href="https://github.com/a-magdy" target="_blank" rel="noopener">a-magdy</a>
+          <span class="colophon-sep" aria-hidden="true">·</span>
+          <a href="https://github.com/openmoh/openmohaa" target="_blank" rel="noopener">OpenMohaa</a>
+        </p>
+
+        <p class="colophon-thanks">
+          Special thanks to the <a href="https://github.com/openmoh/openmohaa" target="_blank" rel="noopener">OpenMohaa</a> team
+          for keeping this classic alive.
+        </p>
+
+        <p class="colophon-legal">
+          Medal of Honor: Allied Assault is owned by Electronic Arts.
+          This kit is not affiliated with Electronic Arts or the OpenMoHAA project.
+        </p>
+
+        <a href="https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest" class="btn-gog colophon-cta" target="_blank" rel="noopener">Buy the Original on GOG</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- CDN libraries + local script loaded last so DOM + libraries are ready -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" integrity="sha384-O55L/6rhHr9CFvrxqv5luxOCcmVaBmETbZbJDP+Do8T0pztTACsFBD/IXCNkj7DV" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+<script src="script.js"></script>
+</body>
+</html>
