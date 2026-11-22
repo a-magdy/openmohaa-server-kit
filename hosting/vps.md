@@ -52,14 +52,19 @@ nano .env   # hostname, RCON password, game type, maps
 
 ## 4. Copy your game files up
 
-Game files come from your own copy of the game and are never downloaded by the
-kit. Prepare them on your own computer, then upload over SSH:
+Game files come from your own copy of the game; the kit never ships them.
+Prepare them on your own computer, then upload over SSH:
 
 ```bash
 # on your computer, in your local clone
 ./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_*.exe
 ./scripts/upload-game-files.sh user@your-server
 ```
+
+No installer on disk? `./scripts/fetch-game-files.sh --login` (once) and then
+`./scripts/fetch-game-files.sh` download your own purchase from your GOG
+account with [lgogdownloader](https://github.com/Sude-/lgogdownloader) and run
+the prepare step for you.
 
 This copies `./game/` (and `./custom/`, if you use it) to
 `~/openmohaa-server-kit/` on the server. Pass a second argument to use another
