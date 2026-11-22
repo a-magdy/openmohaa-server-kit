@@ -14,8 +14,8 @@ Compose. All settings live in one `.env` file.
 - Runs as a non-root user with your game files mounted read-only.
 - Checks your settings before starting and says clearly what's wrong.
 
-> **You must own the game.** This kit contains no game data and never downloads
-> it. Buy *Medal of Honor: Allied Assault War Chest* on
+> **You must own the game.** This kit contains no game data and never fetches
+> it for you. Buy *Medal of Honor: Allied Assault War Chest* on
 > [GOG](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest)
 > and use your own copy.
 
@@ -56,6 +56,9 @@ cp .env.example .env        # set SERVER_HOSTNAME, RCON_PASSWORD, maps...
 # Keep the installer's .bin parts next to the .exe.
 ./scripts/prepare-game-files.sh --source ~/Downloads/setup_medal_of_honor_*.exe
 #   or: --source "/path/to/installed/Medal of Honor Allied Assault"
+#   or, to pull your own purchase straight from your GOG account:
+#     ./scripts/fetch-game-files.sh --login   # once
+#     ./scripts/fetch-game-files.sh
 
 docker compose up -d
 python3 rcon/rcon-status.py 127.0.0.1
@@ -117,7 +120,7 @@ Drop `.pk3` files into `custom/` and add their map names to `MAP_ROTATION`. See
 | `docker/` | `Dockerfile`, `entrypoint.sh` (validate, download, render, run), `healthcheck.sh` |
 | `config/` | Base server config and helper cfgs (`bots.cfg`, `help.cfg`) |
 | `custom/` | Your `custom.cfg` and extra `.pk3` files (git-ignored) |
-| `scripts/` | `prepare-game-files.sh`, `upload-game-files.sh`, `validate-pk3.sh`, `release-version.sh` |
+| `scripts/` | `prepare-game-files.sh`, `fetch-game-files.sh`, `upload-game-files.sh`, `validate-pk3.sh`, `release-version.sh` |
 | `deploy/` | Scripts behind the reusable `server-*.yml` workflows ([reference](deploy/README.md)) |
 | `rcon/` | Python RCON and status tools, no dependencies |
 | `hosting/vps.md` | Running on a VPS by hand |
