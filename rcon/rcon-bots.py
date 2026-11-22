@@ -76,6 +76,7 @@ Examples:
     print(f"Adding bots to {args.server}:{args.port}...")
     print("=" * 40)
 
+    failed = 0
     for i, bot_name in enumerate(args.bot_names, 1):
         command = f"addbot 1 {bot_name}"
         print(f"[{i}/{len(args.bot_names)}] Adding bot: {bot_name}")
@@ -88,6 +89,8 @@ Examples:
 
         if response:
             print(response)
+            if response.startswith("Error:"):
+                failed += 1
         else:
             print("(No response or empty response)")
 
@@ -96,8 +99,10 @@ Examples:
         if i < len(args.bot_names):
             time.sleep(0.5)
 
-    print("All bots added successfully!")
-    print(f"Added {len(args.bot_names)} bots")
+    if failed:
+        print(f"{failed} of {len(args.bot_names)} bot command(s) failed")
+        sys.exit(1)
+    print(f"Sent {len(args.bot_names)} addbot command(s)")
 
 
 if __name__ == "__main__":

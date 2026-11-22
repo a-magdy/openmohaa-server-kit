@@ -1,5 +1,7 @@
 # openmohaa-server-kit
 
+**Medal of Honor: Allied Assault dedicated server in Docker, powered by OpenMoHAA.**
+
 Host an [OpenMoHAA](https://github.com/openmoh/openmohaa) dedicated server for
 Medal of Honor: Allied Assault (and Spearhead / Breakthrough) with Docker
 Compose. All settings live in one `.env` file.
@@ -16,6 +18,25 @@ Compose. All settings live in one `.env` file.
 
 Not affiliated with Electronic Arts or the OpenMoHAA project. See
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Why this kit
+
+[OpenMoHAA](https://github.com/openmoh/openmohaa) is the engine; this repo is
+only the packaging around its dedicated server. Compared with building the
+upstream container yourself, the kit:
+
+- runs a **pinned, sha256-checked OpenMoHAA release** instead of building
+  whatever is on `main`, and a weekly workflow proposes version bumps;
+- keeps **game data out of the image**: your own files are mounted read-only,
+  so the image can be published and shared ([ghcr.io](https://github.com/a-magdy/openmohaa-server-kit/pkgs/container/openmohaa-server-kit), amd64 and arm64);
+- puts every common setting in **one `.env` file** and refuses to start with
+  unsafe or invalid values (weak RCON password, cfg injection, bad map names);
+- runs **hardened**: non-root, read-only root filesystem, all capabilities
+  dropped, a UDP healthcheck;
+- adds helpers to **prepare game files from the GOG installer**, upload them to
+  a VPS, and query or control the server over RCON.
+
+Engine bugs and gameplay features belong upstream, not here.
 
 ## Quickstart
 
@@ -65,6 +86,7 @@ Edit `.env`, then `docker compose up -d` to apply.
 | `GAME_PORT` / `GAMESPY_PORT` | `12203` / `12300` | UDP ports, `net_port` / `net_gamespy_port` |
 | `GAME_DIR` | `./game` | Host folder with your game data |
 | `KIT_VERSION` | `latest` | Image tag to run |
+| `MEM_LIMIT` / `CPU_LIMIT` | `1g` / `2` | Container memory and CPU limits |
 
 Anything else goes in `custom/custom.cfg`; start from
 [custom/custom.cfg.example](custom/custom.cfg.example). Values in `.env` must
@@ -102,6 +124,11 @@ docker compose build
 
 The OpenMoHAA version and its sha256 values are build arguments in
 [docker/Dockerfile](docker/Dockerfile).
+
+## Contributing and security
+
+Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
+Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 ## Licence
 

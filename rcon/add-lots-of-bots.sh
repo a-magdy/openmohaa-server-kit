@@ -1,21 +1,33 @@
 #!/usr/bin/env bash
+# Add a batch of named bots through rcon-bots.py.
+#
+# Usage:
+#   ./rcon/add-lots-of-bots.sh
+#   RCON_SERVER=1.2.3.4 RCON_PASSWORD=... LIMIT=10 ./rcon/add-lots-of-bots.sh
+#
+# Server, port and password come from the environment or rcon/.env.
+# LIMIT (default 20) caps how many bots are added; 0 adds all of them.
+# RANDOMIZE=false keeps the list order.
 
 set -euo pipefail
 
-# Sample script demonstrating rcon-bots.py with multiple addbot commands
-# This script adds various bots with different names and skill levels
+case "${1:-}" in
+  -h | --help)
+    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
 
-# Configuration
-RCON_SERVER="${RCON_SERVER:-<your-server>}"
-RCON_PASSWORD="${RCON_PASSWORD:-<your-rcon-password>}"
-RCON_PORT="${RCON_PORT:-12203}"
+# Only pass what is set; rcon-bots.py reads the rest from rcon/.env.
+rcon_args=()
+[[ -n "${RCON_SERVER:-}" ]] && rcon_args+=(-s "$RCON_SERVER")
+[[ -n "${RCON_PASSWORD:-}" ]] && rcon_args+=(-p "$RCON_PASSWORD")
+[[ -n "${RCON_PORT:-}" ]] && rcon_args+=(-P "$RCON_PORT")
 
 # Path to the local RCON helper scripts
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Adding bots to MOHAA server..."
-echo "Server: $RCON_SERVER:$RCON_PORT"
-echo "================================"
 
 names=(
 	"Maverick"
@@ -110,4 +122,4 @@ fi
 
 echo "Creating (${#names[@]}) Bots, with the following names: ${names[*]}"
 
-"$SCRIPT_DIR/rcon-bots.py" -s "$RCON_SERVER" -p "$RCON_PASSWORD" -P "$RCON_PORT" "${names[@]}"
+python3 "$SCRIPT_DIR/rcon-bots.py" ${rcon_args[@]+"${rcon_args[@]}"} "${names[@]}"

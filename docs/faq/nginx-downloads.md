@@ -14,8 +14,8 @@ Example:
 
 This maps to URLs like:
 
-- `http://yourdomain.com/mohaa/mp_snipervalley.pk3`
-- `https://yourdomain.com/mohaa/mp_snipervalley.pk3`
+- `http://example.com/mohaa/mp_snipervalley.pk3`
+- `https://example.com/mohaa/mp_snipervalley.pk3`
 
 ## Nginx config (example)
 
@@ -23,7 +23,7 @@ This maps to URLs like:
 # HTTP (legacy/original clients)
 server {
     listen 80;
-    server_name yourdomain.com;
+    server_name example.com;
     root /var/www;
 
     location /mohaa/ {
@@ -38,11 +38,11 @@ server {
 # HTTPS (OpenMohaa-friendly)
 server {
     listen 443 ssl;
-    server_name yourdomain.com;
+    server_name example.com;
     root /var/www;
 
-    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
 
     location /mohaa/ {
@@ -60,7 +60,7 @@ server {
 ```bash
 sudo apt update
 sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d yourdomain.com
+sudo certbot --nginx -d example.com
 ```
 
 ## Validate Nginx setup
@@ -75,7 +75,7 @@ sudo systemctl reload nginx
 Set the base URL in `.env` and restart:
 
 ```bash
-DOWNLOAD_URL=https://yourdomain.com/mohaa
+DOWNLOAD_URL=https://example.com/mohaa
 ```
 
 The kit then sets `sv_allowDownload 1` and `sv_dlURL` to that URL. Put the

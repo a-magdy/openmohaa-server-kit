@@ -7,7 +7,7 @@
 FROM debian:bookworm-slim
 
 # Pinned upstream release (https://github.com/openmoh/openmohaa/releases).
-# Bump all three together; check-openmohaa-release.yml opens an issue when a
+# Bump all three together; check-openmohaa-release.yml opens a pull request when a
 # new release is out.
 ARG OPENMOHAA_VERSION=v0.82.1
 ARG OPENMOHAA_SHA256_AMD64=57692d057a684afb7f7e91a61fcd8c062b29ab1b639f27453830084a88cd653c
