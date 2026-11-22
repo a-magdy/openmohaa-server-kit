@@ -79,13 +79,20 @@ Examples:
         args.server, args.port, args.password, args.command, args.timeout
     )
 
-    if response:
-        print(response)
-    else:
+    if not response:
         print("No response received")
         sys.exit(1)
 
+    print(response)
     print("-" * 40)
+
+    # send_rcon_command reports failures as text; scripts need a non-zero exit.
+    if response.startswith(("Error:", "No valid response")) or (
+        "Bad rconpassword" in response
+    ):
+        print("Command failed")
+        sys.exit(1)
+
     print("Command completed")
 
 
