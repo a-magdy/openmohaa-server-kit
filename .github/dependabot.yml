@@ -4,7 +4,12 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Wait a week before proposing a new release (supply-chain safety).
+    cooldown:
+      default-days: 7
   - package-ecosystem: docker
     directory: /docker
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7

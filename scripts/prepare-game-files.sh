@@ -82,14 +82,15 @@ extract_installer() {
       die "innoextract failed. Multi-part installers need their .bin files next to the .exe."
   elif command -v docker >/dev/null 2>&1; then
     log "innoextract not found; extracting $name inside a debian container..."
+    # apt needs root inside the container; hand the files back to you after.
     docker run --rm \
-      -u "$(id -u):$(id -g)" \
       -e INSTALLER="$name" \
+      -e OWNER="$(id -u):$(id -g)" \
       -v "$dir":/in:ro \
       -v "$out":/out \
       -w /in \
       debian:bookworm-slim \
-      sh -c 'apt-get update -qq >/dev/null 2>&1; apt-get install -y -qq innoextract >/dev/null 2>&1; innoextract --gog --silent -d /out "$INSTALLER"' ||
+      sh -c 'apt-get update -qq >/dev/null 2>&1 && apt-get install -y -qq innoextract >/dev/null 2>&1 && innoextract --gog --silent -d /out "$INSTALLER" && chown -R "$OWNER" /out' ||
       die "Extraction in docker failed. Install innoextract (brew/apt install innoextract) and retry."
   else
     die "Extracting the installer needs innoextract or docker."

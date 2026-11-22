@@ -1,7 +1,7 @@
 name: Lint
 
 # Runs the same hooks as `pre-commit run --all-files` locally
-# (.pre-commit-config.yaml: ShellCheck, Ruff, basic file hygiene).
+# (.pre-commit-config.yaml: ShellCheck, Ruff, actionlint, zizmor, basic file hygiene).
 
 on:
   push:

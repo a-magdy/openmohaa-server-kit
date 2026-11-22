@@ -19,7 +19,7 @@ sha256sum /var/www/mohaa/mp_snipervalley.pk3
 2. Validate the downloadable URL against that checksum:
 
 ```bash
-./scripts/validate-pk3.sh https://yourdomain.com/mohaa/mp_snipervalley.pk3 d2f3...abcd
+./scripts/validate-pk3.sh https://example.com/mohaa/mp_snipervalley.pk3 d2f3...abcd
 ```
 
 3. Interpret result:

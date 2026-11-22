@@ -1,23 +1,33 @@
 #!/usr/bin/env bash
-# validate-pk3.sh
-# Validates a downloaded .pk3 file against an expected SHA256 checksum.
-# Usage: ./validate-pk3.sh <url> <expected_sha256>
+# Download a .pk3 from your download URL and check it against a sha256, to
+# confirm players get the same file the server loads.
+#
+# Usage:
+#   ./scripts/validate-pk3.sh <pk3_url> <expected_sha256>
+#
 # Example:
-#   ./validate-pk3.sh https://yourdomain.com/mohaa/mp_snipervalley.pk3 d2f3...abcd
+#   ./scripts/validate-pk3.sh https://example.com/mohaa/mymap.pk3 d2f3...abcd
 
 set -euo pipefail
 
+case "${1:-}" in
+  -h | --help)
+    sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
+
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <pk3_url> <expected_sha256>"
+  echo "Usage: $0 <pk3_url> <expected_sha256> (try --help)" >&2
   exit 1
 fi
 
 URL="$1"
-EXPECTED="$2"
-TMPDIR="$(mktemp -d)"
-TMPFILE="$TMPDIR/download.pk3"
+EXPECTED="$(printf '%s' "$2" | tr '[:upper:]' '[:lower:]')"
+WORK_DIR="$(mktemp -d)"
+TMPFILE="$WORK_DIR/download.pk3"
 
-trap 'rm -rf "$TMPDIR"' EXIT
+trap 'rm -rf "$WORK_DIR"' EXIT
 
 echo "Downloading: $URL"
 curl -L --fail --progress-bar "$URL" -o "$TMPFILE"

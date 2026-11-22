@@ -38,5 +38,7 @@ part of this repository.
 
 ## Server config
 
-`config/base/server_opm.cfg` is based on the sample dedicated-server settings
-documented by the OpenMoHAA project and annotated for this kit.
+`config/base/server_opm.cfg` sets standard Medal of Honor / OpenMoHAA server
+cvars. The comments are written for this kit; see the
+[OpenMoHAA configuration docs](https://github.com/openmoh/openmohaa/tree/main/docs)
+for the authoritative reference.

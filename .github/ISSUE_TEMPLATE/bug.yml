@@ -1,0 +1,33 @@
+name: Bug report
+description: Something in the kit does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Never paste passwords, your `.env` as is, or links to game files.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Kit version
+      description: KIT_VERSION or commit, e.g. 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Host
+      description: OS, CPU architecture and `docker compose version`
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Output of `docker compose logs openmohaa` (remove anything private).
+      render: text

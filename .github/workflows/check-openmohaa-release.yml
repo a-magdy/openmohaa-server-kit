@@ -3,7 +3,8 @@ name: Check OpenMoHAA release
 # Weekly: if upstream has a newer release than the one pinned in
 # docker/Dockerfile, open a PR that bumps the version and sha256 values.
 # Needs "Allow GitHub Actions to create and approve pull requests" in the
-# repository's Actions settings.
+# repository's Actions settings. PRs opened with GITHUB_TOKEN do not start
+# other workflows: close and reopen the PR (or push to it) to run Lint and Guard.
 
 on:
   schedule:
@@ -20,7 +21,9 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Keeps the token in .git/config on purpose: the last step pushes the
+      # bump branch. Nothing in this job uploads artifacts.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 # zizmor: ignore[artipacked]
 
       - name: Compare pinned and latest release
         id: check
