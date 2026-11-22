@@ -1,0 +1,98 @@
+name: Server init (reusable)
+
+# Prepares an existing Linux host over SSH: installs Docker if missing,
+# creates the install folder and opens the game ports in ufw if it is
+# active. Does not create a VPS and does not upload game files.
+# See deploy/README.md for the interface.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: GitHub Environment that holds the SSH secrets.
+        type: string
+        default: production
+      install_dir:
+        description: Folder on the server, relative to the SSH user's home.
+        type: string
+        default: openmohaa-server-kit
+      server_env:
+        description: Path of the settings file in the caller repository (read for GAME_PORT and GAMESPY_PORT).
+        type: string
+        default: server.env
+    secrets:
+      SSH_HOST:
+        description: Server hostname or IP (Environment secret).
+        required: false
+      SSH_USER:
+        description: SSH user, root or with passwordless sudo (Environment secret).
+        required: false
+      SSH_PRIVATE_KEY:
+        description: Private key for SSH_USER, no passphrase (Environment secret).
+        required: false
+      SSH_KNOWN_HOSTS:
+        description: Server host key line(s) from ssh-keyscan (Environment secret).
+        required: false
+      SSH_PORT:
+        description: SSH port, default 22 (Environment secret, optional).
+        required: false
+
+permissions:
+  contents: read
+
+env:
+  KIT_REPOSITORY: a-magdy/openmohaa-server-kit
+  # Equal to this file's release tag without the "v" (see server-deploy.yml).
+  KIT_VERSION: "0.2.0"
+
+jobs:
+  init:
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 20
+    concurrency:
+      group: openmohaa-server-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - name: Check out settings
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: site
+          persist-credentials: false
+
+      - name: Check out kit deploy files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.KIT_REPOSITORY }}
+          ref: v${{ env.KIT_VERSION }}
+          path: kit
+          persist-credentials: false
+          sparse-checkout: deploy
+
+      - name: Read ports
+        env:
+          SERVER_ENV: site/${{ inputs.server_env }}
+        run: |
+          kit/deploy/server-env.sh check "$SERVER_ENV"
+          {
+            echo "GAME_PORT=$(kit/deploy/server-env.sh get "$SERVER_ENV" GAME_PORT 12203)"
+            echo "GAMESPY_PORT=$(kit/deploy/server-env.sh get "$SERVER_ENV" GAMESPY_PORT 12300)"
+          } >> "$GITHUB_ENV"
+
+      - name: Set up SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: kit/deploy/ssh-setup.sh
+
+      - name: Prepare server
+        env:
+          INSTALL_DIR: ${{ inputs.install_dir }}
+        run: kit/deploy/ssh-run.sh kit/deploy/remote/init.sh
+
+      - name: Remove keys
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/kit-ssh"

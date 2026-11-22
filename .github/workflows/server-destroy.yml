@@ -1,0 +1,94 @@
+name: Server destroy (reusable)
+
+# Stops the server and removes the install folder, its Docker volume and
+# image. Never deletes the VPS. See deploy/README.md for the interface.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: GitHub Environment that holds the SSH secrets.
+        type: string
+        default: production
+      install_dir:
+        description: Folder on the server, relative to the SSH user's home.
+        type: string
+        default: openmohaa-server-kit
+      confirm:
+        description: Must be exactly "destroy".
+        type: string
+        required: true
+      keep_game_files:
+        description: Keep <install_dir>/game/ so a later deploy needs no new upload.
+        type: boolean
+        default: false
+    secrets:
+      SSH_HOST:
+        description: Server hostname or IP (Environment secret).
+        required: false
+      SSH_USER:
+        description: SSH user with Docker access or passwordless sudo (Environment secret).
+        required: false
+      SSH_PRIVATE_KEY:
+        description: Private key for SSH_USER, no passphrase (Environment secret).
+        required: false
+      SSH_KNOWN_HOSTS:
+        description: Server host key line(s) from ssh-keyscan (Environment secret).
+        required: false
+      SSH_PORT:
+        description: SSH port, default 22 (Environment secret, optional).
+        required: false
+
+permissions:
+  contents: read
+
+env:
+  KIT_REPOSITORY: a-magdy/openmohaa-server-kit
+  # Equal to this file's release tag without the "v" (see server-deploy.yml).
+  KIT_VERSION: "0.2.0"
+
+jobs:
+  destroy:
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 10
+    concurrency:
+      group: openmohaa-server-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - name: Check confirmation
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [[ "$CONFIRM" != destroy ]]; then
+            echo "::error::Type destroy in the confirm field to remove the server."
+            exit 1
+          fi
+
+      - name: Check out kit deploy files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.KIT_REPOSITORY }}
+          ref: v${{ env.KIT_VERSION }}
+          path: kit
+          persist-credentials: false
+          sparse-checkout: deploy
+
+      - name: Set up SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: kit/deploy/ssh-setup.sh
+
+      - name: Remove server
+        env:
+          INSTALL_DIR: ${{ inputs.install_dir }}
+          KEEP_GAME_FILES: ${{ inputs.keep_game_files }}
+        run: kit/deploy/ssh-run.sh kit/deploy/remote/destroy.sh
+
+      - name: Remove keys
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/kit-ssh"

@@ -30,10 +30,28 @@ Conventions:
 - Workflows: actions pinned by full commit SHA, least-privilege `permissions`,
   no `${{ }}` expressions inside `run:` blocks.
 - A new setting goes in `docker/entrypoint.sh` (with validation),
-  `.env.example` and the README settings table together.
+  `.env.example`, the README settings table and `ALLOWED_KEYS` in
+  `deploy/server-env.sh` together.
 
 Test a change with your own game files: `docker compose up -d --build`, then
 `docker compose logs` and `python3 rcon/rcon-status.py 127.0.0.1`.
+
+## Releasing
+
+Releases are `vX.Y.Z` tags on `main`. The reusable `server-*.yml` workflows
+pin their own version, so it has to be bumped before tagging:
+
+```bash
+./scripts/release-version.sh set 0.3.0   # edits the three server-*.yml files
+git switch -c release/v0.3.0 && git commit -am "chore: release v0.3.0"
+# open a PR, merge it, then tag the merge commit:
+git switch main && git pull
+git tag -s v0.3.0 -m v0.3.0 && git push origin v0.3.0
+```
+
+The Image workflow checks the tag matches (`release-version.sh check`) before
+it publishes `ghcr.io/<owner>/openmohaa-server-kit:0.3.0`. Then write the
+GitHub release notes for the tag.
 
 ## Pull requests
 

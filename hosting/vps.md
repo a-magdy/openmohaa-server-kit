@@ -3,6 +3,9 @@
 Works on any Linux VPS or home server with Docker: Hetzner, DigitalOcean,
 OVH, a Raspberry Pi 4/5 with a 64-bit OS (arm64), and so on.
 
+This page sets it up by hand. To have GitHub Actions do Docker, the folder
+and every deploy for you, see [github-actions.md](github-actions.md).
+
 ## Size
 
 One server with up to ~30 players and bots runs comfortably on 1 vCPU and

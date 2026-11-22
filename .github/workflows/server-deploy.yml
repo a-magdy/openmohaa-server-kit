@@ -1,0 +1,145 @@
+name: Server deploy (reusable)
+
+# Uploads the hoster's settings to a Linux host over SSH and (re)starts the
+# pinned kit image with docker compose. See deploy/README.md for the
+# interface. Secrets come from the caller repository's GitHub Environment
+# named by `environment`; the caller passes none.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: GitHub Environment that holds the SSH and server secrets.
+        type: string
+        default: production
+      install_dir:
+        description: Folder on the server, relative to the SSH user's home.
+        type: string
+        default: openmohaa-server-kit
+      server_env:
+        description: Path of the non-secret settings file in the caller repository.
+        type: string
+        default: server.env
+      custom_dir:
+        description: Path of the custom/ folder in the caller repository.
+        type: string
+        default: custom
+    secrets:
+      SSH_HOST:
+        description: Server hostname or IP (Environment secret).
+        required: false
+      SSH_USER:
+        description: SSH user with Docker access or passwordless sudo (Environment secret).
+        required: false
+      SSH_PRIVATE_KEY:
+        description: Private key for SSH_USER, no passphrase (Environment secret).
+        required: false
+      SSH_KNOWN_HOSTS:
+        description: Server host key line(s) from ssh-keyscan (Environment secret).
+        required: false
+      SSH_PORT:
+        description: SSH port, default 22 (Environment secret, optional).
+        required: false
+      RCON_PASSWORD:
+        description: Remote console password; empty disables RCON (Environment secret).
+        required: false
+      SERVER_PASSWORD:
+        description: Join password; empty means an open server (Environment secret, optional).
+        required: false
+    outputs:
+      kit_version:
+        description: Kit image version that was deployed.
+        value: ${{ jobs.deploy.outputs.kit_version }}
+
+permissions:
+  contents: read
+
+env:
+  KIT_REPOSITORY: a-magdy/openmohaa-server-kit
+  # Equal to this file's release tag without the "v". The release process
+  # sets it, and a check in the kit fails the release if it does not match,
+  # so callers bump one ref and get matching workflows and image.
+  KIT_VERSION: "0.2.0"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 20
+    concurrency:
+      group: openmohaa-server-${{ inputs.environment }}
+      cancel-in-progress: false
+    outputs:
+      kit_version: ${{ steps.done.outputs.kit_version }}
+    steps:
+      - name: Check out settings
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: site
+          persist-credentials: false
+
+      - name: Check out kit deploy files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.KIT_REPOSITORY }}
+          ref: v${{ env.KIT_VERSION }}
+          path: kit
+          persist-credentials: false
+          sparse-checkout: |
+            compose.yaml
+            deploy
+          sparse-checkout-cone-mode: false
+
+      - name: Validate settings
+        env:
+          SERVER_ENV: site/${{ inputs.server_env }}
+        run: kit/deploy/server-env.sh check "$SERVER_ENV"
+
+      - name: Set up SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: kit/deploy/ssh-setup.sh
+
+      - name: Check server and game files
+        env:
+          INSTALL_DIR: ${{ inputs.install_dir }}
+        run: kit/deploy/ssh-run.sh kit/deploy/remote/deploy.sh check
+
+      - name: Build upload
+        env:
+          SERVER_ENV: site/${{ inputs.server_env }}
+          CUSTOM_DIR: site/${{ inputs.custom_dir }}
+          RCON_PASSWORD: ${{ secrets.RCON_PASSWORD }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          out="$RUNNER_TEMP/kit-upload"
+          rm -rf "$out"
+          (umask 077 && mkdir -p "$out")
+          kit/deploy/server-env.sh render "$SERVER_ENV" "$out/.env"
+          cp kit/compose.yaml "$out/compose.yaml"
+          if [[ -f "$CUSTOM_DIR/custom.cfg" ]]; then
+            cp "$CUSTOM_DIR/custom.cfg" "$out/custom.cfg"
+            echo "Including custom.cfg"
+          fi
+
+      - name: Upload and start
+        env:
+          INSTALL_DIR: ${{ inputs.install_dir }}
+        run: |
+          kit/deploy/ssh-run.sh kit/deploy/remote/deploy.sh stage
+          kit/deploy/ssh-run.sh --upload "$RUNNER_TEMP/kit-upload"
+          kit/deploy/ssh-run.sh kit/deploy/remote/deploy.sh apply
+
+      - name: Summary
+        id: done
+        run: |
+          echo "kit_version=$KIT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Deployed openmohaa-server-kit $KIT_VERSION." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove keys and rendered files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/kit-ssh" "$RUNNER_TEMP/kit-upload"
